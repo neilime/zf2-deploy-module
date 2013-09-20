@@ -1,0 +1,31 @@
+{
+    "name": "neilime/zf2-deploy-module",
+    "type": "library",
+    "description": "ZF2 Deploy Module is a Zend Framework 2 provides tools for deploying ZF2 module into a ZendSkeletonApplication to display / tests module's views",
+    "keywords": ["Zend Framework 2","Module development", "Module deployment],
+    "homepage": "https://github.com/neilime/zf2-deploy-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Neilime",
+            "homepage": "https://github.com/neilime",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/neilime/deploy-module/issues"
+    },
+    "minimum-stability" : "stable",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "2.*@stable"
+    },
+    "bin": [
+        "bin/deploy_module.php"
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}

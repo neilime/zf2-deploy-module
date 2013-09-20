@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+         colors="true"
+         verbose="true"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         stopOnFailure="true">
+    <testsuites>
+        <testsuite name="Neilime\ZF2DeployModuleTest">
+            <directory suffix=".php">./ZF2DeployModuleTest/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">../bin/</directory>
+        </whitelist>
+    </filter>
+    <logging>
+		<log type="coverage-clover" target="./clover.xml"/>
+	</logging>
+</phpunit>
