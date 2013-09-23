@@ -1,0 +1,15 @@
+{
+    "name": "neilime/test-module",
+    "description": "Test module",
+    "type": "library",
+    "minimum-stability" : "dev",
+    "require": {
+        "zendframework/zendframework": "master-dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "TestModule": "src"
+        },
+        "classmap" : ["Module.php"]
+    }
+}

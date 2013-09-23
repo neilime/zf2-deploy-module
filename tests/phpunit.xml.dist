@@ -5,6 +5,9 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          stopOnFailure="true">
+    <php>
+    	<env name="LIB_PATH" value="../vendor/zendframework/zendframework/library"/>
+    </php>
     <testsuites>
         <testsuite name="Neilime\ZF2DeployModuleTest">
             <directory suffix=".php">./ZF2DeployModuleTest/</directory>
