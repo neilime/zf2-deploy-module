@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Zf2-deploy-module by neilime</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Zf2-deploy-module</h1>
+        <h2>ZF2 Deploy Module provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views</h2>
+        <a href="https://github.com/neilime/zf2-deploy-module" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="zf2-deploy-module-v10" class="anchor" href="#zf2-deploy-module-v10"><span class="octicon octicon-link"></span></a>ZF2 Deploy Module, v1.0</h1>
+
+<p><a href="https://travis-ci.org/neilime/zf2-deploy-module"><img src="https://travis-ci.org/neilime/zf2-deploy-module.png?branch=master" alt="Build Status"></a>
+<a href="https://packagist.org/packages/neilime/zf2-deploy-module"><img src="https://poser.pugx.org/neilime/zf2-deploy-module/v/stable.png" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/neilime/zf2-deploy-module"><img src="https://poser.pugx.org/neilime/zf2-deploy-module/downloads.png" alt="Total Downloads"></a>
+<img src="https://raw.github.com/zf2-boiler-app/app-test/master/ressources/100%25-code-coverage.png" alt="Code coverage" title="100% code coverage"></p>
+
+<p>NOTE : If you want to contribute don't hesitate, I'll review any PR.</p>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p><strong>ZF2 Deploy Module</strong> provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views. 
+It is useful for ZF2 modules developers, in order to render modules views (for humans, selenium...).</p>
+
+<p>The benefit of this tool is that it does not change the module to deploy (no moving / changing / adding files), it manages the autoloading, <a href="http://getcomposer.org/">composer</a> (install / update), and adding the module(s) in the application configuration.</p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>If you wish to contribute to ZF2 Deploy Module, please read both the <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> file.</p>
+
+<h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>
+<a href="https://github.com/zendframework/zf2">Zend Framework 2</a> (2.*)</li>
+</ul><h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<h3>
+<a name="main-setup" class="anchor" href="#main-setup"><span class="octicon octicon-link"></span></a>Main Setup</h3>
+
+<h4>
+<a name="by-cloning-project" class="anchor" href="#by-cloning-project"><span class="octicon octicon-link"></span></a>By cloning project</h4>
+
+<ol>
+<li>Clone this project into your <code>./vendor/</code> directory.</li>
+</ol><h4>
+<a name="with-composer" class="anchor" href="#with-composer"><span class="octicon octicon-link"></span></a>With composer</h4>
+
+<ol>
+<li>
+<p>Add this project in your composer.json:</p>
+
+<div class="highlight highlight-json"><pre><span class="s2">"require_dev"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"dev-master"</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Or</p>
+
+<div class="highlight highlight-json"><pre><span class="s2">"require"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"dev-master"</span>
+<span class="p">}</span>
+</pre></div>
+</li>
+<li>
+<p>Now tell composer to download <strong>ZF2 Deploy Module</strong> by running the command:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>php composer.phar update
+</pre></div>
+</li>
+</ol><h2>
+<a name="how-to-use-zf2-deploy-module" class="anchor" href="#how-to-use-zf2-deploy-module"><span class="octicon octicon-link"></span></a>How to use <em>ZF2 Deploy Module</em>
+</h2>
+
+<p><em>ZF2 Deploy Module</em> provides console tools.</p>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<pre><code>```bash
+php ./vendor/bin/deploy_module.php [args]
+```
+</code></pre>
+
+<h3>
+<a name="arguments" class="anchor" href="#arguments"><span class="octicon octicon-link"></span></a>Arguments</h3>
+
+<pre><code>--help|-h                   Get usage message
+--module|-m [ &lt;string&gt; ]    Module path to deploy; if none provided, assumes current directory
+--dir|-d [ &lt;string&gt; ]       Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed
+--modules|-a [ &lt;string&gt; ]   (optionnal) Additionnal module namespaces (comma separated) to be used in the application
+--app|-z [ &lt;string&gt; ]       (optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
+--composer|-c [ &lt;string&gt; ]  (optionnal) Composer.phar file path, allows locale or remote directory
+--overwrite|-w              Whether or not to overwrite existing deployed ZendSkeletonApplication
+--verbose|-v                Whether or not to display trace string when an error occured 
+</code></pre>
+
+<h2>
+<a name="exemple" class="anchor" href="#exemple"><span class="octicon octicon-link"></span></a>Exemple</h2>
+
+<h3>
+<a name="deploy-a-module-to-run-it-with-easyphp-windows" class="anchor" href="#deploy-a-module-to-run-it-with-easyphp-windows"><span class="octicon octicon-link"></span></a>Deploy a module to run it with EasyPhp (windows)</h3>
+
+<p>This exemple expects :<br>
+    * EasyPhp &amp; PHP is installed on windows
+    * A virtual host named "<a href="http://www.test-module.com">www.test-module.com</a>" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"</p>
+
+<ol>
+<li><p>Install <strong>ZF2 Deploy Module</strong> into the your module project as explain above</p></li>
+<li>
+<p>Deploy module into EasyPhp "\TestModule"</p>
+
+<div class="highlight highlight-bash"><pre><span class="nb">cd </span>path<span class="se">\t</span>o<span class="se">\y</span>our<span class="se">\m</span>odule<span class="se">\d</span>irectory
+php ./vendor/bin/deploy_module.php -d <span class="s2">"C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule"</span> -v
+</pre></div>
+</li>
+<li><p>Display it in your browser 
+Go to <a href="http://www.test-module.com">http://www.test-module.com</a></p></li>
+</ol><h3>
+<a name="deploy-a-module-for-selenium-tests-with-travis-ciorg" class="anchor" href="#deploy-a-module-for-selenium-tests-with-travis-ciorg"><span class="octicon octicon-link"></span></a>Deploy a module for Selenium tests with "travis-ci.org"</h3>
+
+<ol>
+<li>
+<p>Edit your .travis.yml</p>
+
+<div class="highlight highlight-yml"><pre><span class="l-Scalar-Plain">before_install</span><span class="p-Indicator">:</span>
+<span class="p-Indicator">-</span> <span class="s">"export</span><span class="nv"> </span><span class="s">DISPLAY=:99.0"</span>
+<span class="p-Indicator">-</span> <span class="s">"sh</span><span class="nv"> </span><span class="s">-e</span><span class="nv"> </span><span class="s">/etc/init.d/xvfb</span><span class="nv"> </span><span class="s">start"</span>
+</pre></div>
+</li>
+<li><p>Run the build</p></li>
+</ol>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/neilime/zf2-deploy-module/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/neilime/zf2-deploy-module/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/neilime/zf2-deploy-module"></a> is maintained by <a href="https://github.com/neilime">neilime</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
