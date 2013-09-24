@@ -6,10 +6,10 @@
  * Usage:
  * --help|-h                    Get usage message
  * --module|-m [ <string> ] 	Module to deploy; if none provided, assumes current directory
- * --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module)
- * --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application'
- * --app|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries'
- * --composer|-c [ <string> ]   (optionnal) Composer.phar file path, allows locale or remote directory'
+ * --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed
+ * --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application
+ * --app|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
+ * --composer|-c [ <string> ]   (optionnal) Composer.phar file path, allows locale or remote directory
  * --overwrite|-w 				Whether or not to overwrite existing ZendSkeletonApplication
  * --verbose|-v 					Whether or not to display trace string when an error occured
  */
@@ -25,7 +25,7 @@ if($sZendLibraryPath = getenv('LIB_PATH')){
 	if(!is_readable($sZendLibraryPath))throw new \InvalidArgumentException('Zend Framework library directory "'.$sZendLibraryPath.'" is unreadable');
 }
 //Composer install path
-else $sZendLibraryPath = __DIR__.'/../zendframework/zendframework/library';
+else $sZendLibraryPath = __DIR__.'/../../../zendframework/zendframework/library';
 if(is_dir($sZendLibraryPath)){
 	if(!is_readable($sStandardAutoloaderPath = $sZendLibraryPath.'/Zend/Loader/StandardAutoloader.php'))throw new \InvalidArgumentException('StandardAutoloader file "'.$sStandardAutoloaderPath.'" is unreadable');
 	// Try to load StandardAutoloader from library
@@ -48,7 +48,7 @@ try{
 	$oGetopt = new \Zend\Console\Getopt(array(
 		'help|h'    	=> 'Get usage message',
 		'module|m-s' 	=> 'Module to deploy; if none provided, assumes current directory',
-		'dir|d-s' 		=> 'Directory path where to deploy the module (ex: apache/www/my-module)',
+		'dir|d-s' 		=> 'Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed',
 		'modules|a-s'	=> '(optionnal) Additionnal module namespaces (comma separated) to be used in the application',
 		'zapp|z-s' 		=> '(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries',
 		'composer|c-s' 	=> '(optionnal) Composer.phar file path, allows locale or remote directory',
@@ -97,7 +97,20 @@ try{
 	if(!is_string($sDeployDirPath))throw new \InvalidArgumentException('Deploy directory path expects string, "'.gettype($sDeployDirPath).'" given');
 
 	//Create deploy dir if needed
-	if(!is_dir($sDeployDirPath) && !mkdir($sDeployDirPath,0777 ,true))throw new \InvalidArgumentException('Deploy directory "'.$sDeployDirPath.'" does not exist and can\'t be created');
+	if(!is_dir($sDeployDirPath)){
+		$oPrompt = new \Zend\Console\Prompt\Confirm('Deploy dir "'.$sDeployDirPath.'" does not exist, create it (y/n) ?','y','n');
+		$oPrompt->setConsole($oConsole);
+		if($oPrompt->show()){
+			if(!@mkdir($sDeployDirPath)){
+				$aLastError = error_get_last();
+				throw new \InvalidArgumentException('Deploy directory "'.$sDeployDirPath.'" can\'t be created - '.$aLastError['message']);
+			}
+		}
+		else{
+			$oConsole->writeLine(PHP_EOL.'Deploying module "'.$sCurrentModuleName.'" aborted'.PHP_EOL, \Zend\Console\ColorInterface::LIGHT_RED);
+			exit(0);
+		}
+	}
 	$sDeployDirPath = realpath($sDeployDirPath);
 
 	if($bVerbose)$oConsole->writeLine(PHP_EOL.'### Deploy module "'.$sCurrentModuleName.'" into "'.$sDeployDirPath.'" ###',\Zend\Console\ColorInterface::GREEN);
@@ -387,13 +400,11 @@ try{
 		}
 	}
 
-	$bUpdate = file_exists($sDeployDirPath.DIRECTORY_SEPARATOR.'composer.lock');
-	if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer '.($bUpdate?'update':'install'),\Zend\Console\ColorInterface::LIGHT_MAGENTA);
 	$sCurrentWorkingDir = getcwd();
 
 	//Update
-	if($bUpdate){
-		if($bVerbose)$oConsole->writeLine('    - composer update:',\Zend\Console\ColorInterface::WHITE);
+	if(file_exists($sDeployDirPath.DIRECTORY_SEPARATOR.'composer.lock')){
+		if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer update',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
 		chdir($sDeployDirPath);
 		exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' update',$aOutputs, $iReturn);
 		if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
@@ -402,7 +413,7 @@ try{
 	}
 	//Install
 	else{
-		if($bVerbose)$oConsole->writeLine('    - composer install:',\Zend\Console\ColorInterface::WHITE);
+		if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer install',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
 		chdir($sDeployDirPath);
 		exec($sComposerSelfUpdateCommand ='php '. $sDeployComposerPharPath.' install',$aOutputs, $iReturn);
 		if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);

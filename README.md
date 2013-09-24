@@ -70,10 +70,10 @@ _ZF2 Deploy Module_ provides console tools.
     
     --help|-h                   Get usage message
     --module|-m [ <string> ] 	Module to deploy; if none provided, assumes current directory
-    --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module)
-    --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application'
-    --app|-z [ <string> ]   	(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries'
-    --composer|-c [ <string> ]  (optionnal) Composer.phar file path, allows locale or remote directory'
+    --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed
+    --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application
+    --app|-z [ <string> ]   	(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
+    --composer|-c [ <string> ]  (optionnal) Composer.phar file path, allows locale or remote directory
     --overwrite|-w 				Whether or not to overwrite existing ZendSkeletonApplication
     --verbose|-v 				Whether or not to display trace string when an error occured 
     
