@@ -79,9 +79,9 @@ _ZF2 Deploy Module_ provides console tools.
     --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
     --verbose|-v 				Whether or not to display trace string when an error occured 
     
- ## Exemple
+## Exemple
  
- ### Deploy a module to run it with EasyPhp (windows)
+### Deploy a module to run it with EasyPhp (windows)
  
 This exemple expects :  
     * EasyPhp & PHP is installed on windows
@@ -98,7 +98,7 @@ This exemple expects :
 3. Display it in your browser 
     Go to http://www.test-module.com
  
- ### Deploy a module for Selenium tests with "travis-ci.org"
+### Deploy a module for Selenium tests with "travis-ci.org"
  
 1. Edit your .travis.yml
     ```yml
