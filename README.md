@@ -14,7 +14,7 @@ Introduction
 __ZF2 Deploy Module__ provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views. 
 It is useful for ZF2 modules developers, in order to render modules views (for humans, selenium...).
 
-The benefit of this tool is that it does not change the module to deploy (no moving / changing / adding files), it manages the autoloading, composer (install / update), and adding the module(s) in the application configuration.
+The benefit of this tool is that it does not change the module to deploy (no moving / changing / adding files), it manages the autoloading, [composer](http://getcomposer.org/) (install / update), and adding the module(s) in the application configuration.
 
 Contributing
 ------------
