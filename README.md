@@ -77,9 +77,9 @@ _ZF2 Deploy Module_ provides console tools.
     --overwrite|-w 				Whether or not to overwrite existing ZendSkeletonApplication
     --verbose|-v 				Whether or not to display trace string when an error occured 
     
- ## Exemple
+## Exemple
  
- ### Deploy [ZfcUser](https://github.com/ZF-Commons/ZfcUser) to run it with EasyPhp (windows)
+### Deploy [ZfcUser](https://github.com/ZF-Commons/ZfcUser) to run it with EasyPhp (windows)
  
  This exemple expects that EasyPhp & PHP is installed on windows, "www" EasyPhp directory is in "C:\Program Files\EasyPHP-DevServer\data\localweb". 
 
@@ -94,7 +94,7 @@ _ZF2 Deploy Module_ provides console tools.
 3. Display it in your browser 
     Go to http://127.0.0.1/ZfcUser
  
- ### Deploy a module for Selenium tests with "travis-ci.org"
+### Deploy a module for Selenium tests with "travis-ci.org"
  
 1. Edit your .travis.yml
     ```yml
