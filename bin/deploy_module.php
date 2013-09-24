@@ -5,13 +5,13 @@
  *
  * Usage:
  * --help|-h                    Get usage message
- * --module|-m [ <string> ] 	Module to deploy; if none provided, assumes current directory
- * --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed
+ * --module|-m [ <string> ] 	Module path to deploy; if none provided, assumes current directory
+ * --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed
  * --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application
  * --app|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
  * --composer|-c [ <string> ]   (optionnal) Composer.phar file path, allows locale or remote directory
- * --overwrite|-w 				Whether or not to overwrite existing ZendSkeletonApplication
- * --verbose|-v 					Whether or not to display trace string when an error occured
+ * --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
+ * --verbose|-v 				Whether or not to display trace string when an error occured
  */
 
 //Config
@@ -47,13 +47,13 @@ $oConsole = \Zend\Console\Console::getInstance();
 try{
 	$oGetopt = new \Zend\Console\Getopt(array(
 		'help|h'    	=> 'Get usage message',
-		'module|m-s' 	=> 'Module to deploy; if none provided, assumes current directory',
-		'dir|d-s' 		=> 'Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed',
+		'module|m-s' 	=> 'Module path to deploy; if none provided, assumes current directory',
+		'dir|d-s' 		=> 'Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed',
 		'modules|a-s'	=> '(optionnal) Additionnal module namespaces (comma separated) to be used in the application',
 		'zapp|z-s' 		=> '(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries',
 		'composer|c-s' 	=> '(optionnal) Composer.phar file path, allows locale or remote directory',
-		'overwrite|w' 	=> 'Whether or not to overwrite existing ZendSkeletonApplication',
-		'verbose|v' 		=> 'Whether or not to display process infos',
+		'overwrite|w' 	=> 'Whether or not to overwrite existing deployed ZendSkeletonApplication',
+		'verbose|v' 	=> 'Whether or not to display process infos',
 	));
 	$oGetopt->parse();
 	$bVerbose = !!$oGetopt->getOption('verbose');

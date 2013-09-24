@@ -11,8 +11,10 @@ NOTE : If you want to contribute don't hesitate, I'll review any PR.
 Introduction
 ------------
 
-__ZF2 Deploy Module__ is a Zend Framework 2 provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views. 
-It is useful for ZF2 modules developers, in order to render modules views (for humans, selenium...)
+__ZF2 Deploy Module__ provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views. 
+It is useful for ZF2 modules developers, in order to render modules views (for humans, selenium...).
+
+The benefit of this tool is that it does not change the module to deploy (no moving / changing / adding files), it manages the autoloading, composer (install / update), and adding the module(s) in the application configuration.
 
 Contributing
 ------------
@@ -69,38 +71,40 @@ _ZF2 Deploy Module_ provides console tools.
 ### Arguments
     
     --help|-h                   Get usage message
-    --module|-m [ <string> ] 	Module to deploy; if none provided, assumes current directory
-    --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module) the directory could be created if needed
+    --module|-m [ <string> ] 	Module path to deploy; if none provided, assumes current directory
+    --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed
     --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application
     --app|-z [ <string> ]   	(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
     --composer|-c [ <string> ]  (optionnal) Composer.phar file path, allows locale or remote directory
-    --overwrite|-w 				Whether or not to overwrite existing ZendSkeletonApplication
+    --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
     --verbose|-v 				Whether or not to display trace string when an error occured 
     
  ## Exemple
  
- ### Deploy [ZfcUser](https://github.com/ZF-Commons/ZfcUser) to run it with EasyPhp (windows)
+ ### Deploy a module to run it with EasyPhp (windows)
  
- This exemple expects that EasyPhp & PHP is installed on windows, "www" EasyPhp directory is in "C:\Program Files\EasyPHP-DevServer\data\localweb". 
+This exemple expects :  
+    * EasyPhp & PHP is installed on windows
+    * A virtual host named "www.test-module.com" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"
 
-1. Install __ZF2 Deploy Module__ into the __ZfcUser__ project as explain above
+1. Install __ZF2 Deploy Module__ into the your module project as explain above
 
-2. Deploy module into "www\ZfcUser"
+2. Deploy module into EasyPhp "\TestModule"
     ```bash
-    cd path\to\ZfcUser\directory
-    php ./vendor/bin/deploy_module.php -d "C:\Program Files\EasyPHP-DevServer\data\localweb\ZfcUser" -m ZfcBase
+    cd path\to\your\module\directory
+    php ./vendor/bin/deploy_module.php -d "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule" -v
     ```
     
 3. Display it in your browser 
-    Go to http://127.0.0.1/ZfcUser
+    Go to http://www.test-module.com
  
  ### Deploy a module for Selenium tests with "travis-ci.org"
  
 1. Edit your .travis.yml
     ```yml
-    
+    before_install:
+	- "export DISPLAY=:99.0"
+	- "sh -e /etc/init.d/xvfb start"
     ```
 
 2. Run the build
- 
- 
