@@ -64,9 +64,9 @@ _ZF2 Deploy Module_ provides console tools.
 
 ### Usage
 
-    ```bash
-    php ./vendor/bin/deploy_module.php [args]
-    ```
+```bash
+php ./vendor/bin/deploy_module.php [args]
+```
     
 ### Arguments
     
