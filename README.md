@@ -83,8 +83,8 @@ php ./vendor/bin/deploy_module.php [args]
 ### Deploy a module to run it with EasyPhp (windows)
  
 This exemple expects :  
-    * EasyPhp & PHP is installed on windows
-    * A virtual host named "www.test-module.com" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"
+- EasyPhp & PHP is installed on windows
+- A virtual host named "www.test-module.com" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"
 
 1. Install __ZF2 Deploy Module__ into the your module project as explain above
 
