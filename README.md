@@ -102,8 +102,27 @@ This exemple expects :
 1. Edit your .travis.yml
     ```yml
     before_install:
-	- "export DISPLAY=:99.0"
-	- "sh -e /etc/init.d/xvfb start"
+# Update composer
+ - composer self-update
+# Install project
+ - composer install --dev -o
+#deploy module
+ - mkdir ../deploy
+ - php ./vendor/bin/deploy_module.php -d ../deploy -v
+# Install php packages
+ - "sudo apt-get update > /dev/null"
+ - "sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-curl php5-mysql php5-intl"
+# Create VirtualHost
+ - sudo sed -i -e "s,/var/www,$(pwd)/../deploy/public,g" /etc/apache2/sites-available/default
+ - sudo sed -i -e "/DocumentRoot/i\ServerName test-selenium.dev" /etc/apache2/sites-available/default
+ - echo "127.0.0.1 test-selenium.dev" | sudo tee -a /etc/hosts
+ - "sudo /etc/init.d/apache2 restart"
+#Run selenium
+ - "sh -e /etc/init.d/xvfb start"
+ - "export DISPLAY=:99.0"
+ - "wget http://selenium.googlecode.com/files/selenium-server-standalone-2.25.0.jar"
+ - "java -jar selenium-server-standalone-2.25.0.jar > /dev/null 2>&1 &"
+ - "sleep 30"
     ```
 
 2. Run the build
