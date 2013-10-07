@@ -18,7 +18,4 @@
             <directory suffix=".php">../bin/</directory>
         </whitelist>
     </filter>
-    <logging>
-		<log type="coverage-clover" target="./clover.xml"/>
-	</logging>
 </phpunit>

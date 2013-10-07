@@ -8,41 +8,48 @@
  * --module|-m [ <string> ] 	Module path to deploy; if none provided, assumes current directory
  * --dir|-d [ <string> ]    	Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed
  * --modules|-a [ <string> ]	(optionnal) Additionnal module namespaces (comma separated) to be used in the application
- * --app|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
+ * --zapp|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
  * --composer|-c [ <string> ]   (optionnal) Composer.phar file path, allows locale or remote directory
  * --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
  * --verbose|-v 				Whether or not to display trace string when an error occured
  */
 
+
 //Config
 $sZendSkeletonApplicationPath = 'https://github.com/zendframework/ZendSkeletonApplication/archive/master.zip';
 $sComposerPath = 'https://getcomposer.org/installer';
 $bVerbose = true;
+try{
+	//Auloading
+	if($sZendLibraryPath = getenv('LIB_PATH')){
+		if(!is_dir($sZendLibraryPath))throw new \InvalidArgumentException('Zend Framework library path "'.$sZendLibraryPath.'" is not an existing directory path');
+		if(!is_readable($sZendLibraryPath))throw new \InvalidArgumentException('Zend Framework library directory "'.$sZendLibraryPath.'" is unreadable');
+	}
+	//Composer install path
+	else $sZendLibraryPath = __DIR__.'/../../../zendframework/zendframework/library';
+	if(is_dir($sZendLibraryPath)){
+		if(!is_readable($sStandardAutoloaderPath = $sZendLibraryPath.'/Zend/Loader/StandardAutoloader.php'))throw new \InvalidArgumentException('StandardAutoloader file "'.$sStandardAutoloaderPath.'" is unreadable');
+		// Try to load StandardAutoloader from library
+		if(false === include($sStandardAutoloaderPath))throw new \RuntimeException('An error occurred while including file "'.$sStandardAutoloaderPath.'"');
+	}
+	//Try to load StandardAutoloader from include_path
+	else{
+		if(!is_readable($sStandardAutoloaderPath = 'Zend/Loader/StandardAutoloader.php'))throw new \InvalidArgumentException('StandardAutoloader file "'.$sStandardAutoloaderPath.'" is unreadable');
+		if(false === include($sStandardAutoloaderPath))throw new \RuntimeException('An error occurred while including file "'.$sStandardAutoloaderPath.'"');
+	}
 
-//Auloading
-if($sZendLibraryPath = getenv('LIB_PATH')){
-	if(!is_dir($sZendLibraryPath))throw new \InvalidArgumentException('Zend Framework library path "'.$sZendLibraryPath.'" is not an existing directory path');
-	if(!is_readable($sZendLibraryPath))throw new \InvalidArgumentException('Zend Framework library directory "'.$sZendLibraryPath.'" is unreadable');
-}
-//Composer install path
-else $sZendLibraryPath = __DIR__.'/../../../zendframework/zendframework/library';
-if(is_dir($sZendLibraryPath)){
-	if(!is_readable($sStandardAutoloaderPath = $sZendLibraryPath.'/Zend/Loader/StandardAutoloader.php'))throw new \InvalidArgumentException('StandardAutoloader file "'.$sStandardAutoloaderPath.'" is unreadable');
-	// Try to load StandardAutoloader from library
-	if(false === include($sStandardAutoloaderPath))new \RuntimeException('An error occurred while including file "'.$sStandardAutoloaderPath.'"');
-}
-//Try to load StandardAutoloader from include_path
-else{
-	if(!is_readable($sStandardAutoloaderPath = 'Zend/Loader/StandardAutoloader.php'))throw new \InvalidArgumentException('StandardAutoloader file "'.$sStandardAutoloaderPath.'" is unreadable');
-	if(false === include($sStandardAutoloaderPath))new \RuntimeException('An error occurred while including file "'.$sStandardAutoloaderPath.'"');
-}
+	if(!class_exists('Zend\Loader\StandardAutoloader'))throw new \InvalidArgumentException('"'.$sStandardAutoloaderPath.'" does not provide "Zend\Loader\StandardAutoloader" class');
 
-if(!class_exists('Zend\Loader\StandardAutoloader'))new \InvalidArgumentException('"'.$sStandardAutoloaderPath.'" does not provide "Zend\Loader\StandardAutoloader" class');
-
-//Setup autoloading
-$oAutoLoader = new \Zend\Loader\StandardAutoloader(array('autoregister_zf' => true));
-$oAutoLoader->register();
-$oConsole = \Zend\Console\Console::getInstance();
+	//Setup autoloading
+	$oAutoLoader = new \Zend\Loader\StandardAutoloader(array('autoregister_zf' => true));
+	$oAutoLoader->register();
+	$oConsole = \Zend\Console\Console::getInstance();
+}
+catch(\Exception $oException){
+	echo 'An error occured'.PHP_EOL;
+	if($bVerbose)echo $oException.PHP_EOL;
+	exit(2);
+}
 
 try{
 	$oGetopt = new \Zend\Console\Getopt(array(
@@ -68,7 +75,6 @@ if($oGetopt->getOption('help')){
 	$oConsole->writeLine($oGetopt->getUsageMessage());
 	exit(0);
 }
-
 //Perform deployment process
 try{
 
@@ -145,7 +151,7 @@ try{
 				\RecursiveIteratorIterator::CHILD_FIRST
 			) as $oFileInfo){
 				if($oFileInfo->isDir()){
-					if(!rmdir($oFileInfo->getPathname())){
+					if(!@rmdir($oFileInfo->getPathname())){
 						$aLastError = error_get_last();
 						throw new \RuntimeException('Unable to remove directory "'.$oFileInfo->getPathname().'" - '.$aLastError['message']);
 					}
@@ -196,7 +202,7 @@ try{
 		emptyDir($sDeployDirPath);
 
 		//Create temp directory
-		$sZendSkeletonApplicationPath = $oGetopt->getOption('app')?:$sZendSkeletonApplicationPath;
+		$sZendSkeletonApplicationPath = $oGetopt->getOption('zapp')?:$sZendSkeletonApplicationPath;
 
 		$sTempDirPath = $sDeployDirPath.DIRECTORY_SEPARATOR.'tmp';
 		if(!mkdir($sTempDirPath,0777 ,true))throw new \InvalidArgumentException('Temp directory "'.$sTempDirPath.'" can\'t be created');
@@ -205,11 +211,13 @@ try{
 
 		//Copy directory into temp directory
 		if(is_dir($sZendSkeletonApplicationPath)){
-			$aFiles = scandir($sZendSkeletonApplicationPath);
+
+			$aFiles = scandir($sZendSkeletonApplicationPath = realpath($sZendSkeletonApplicationPath));
 			if($bVerbose){
 				$oConsole->writeLine('    - Copy ZendSkeletonApplication from "'.$sZendSkeletonApplicationPath.'"',\Zend\Console\ColorInterface::GRAY);
 				$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(), 0, count($aFiles));
 			}
+
 			foreach($aFiles as $iKey => $sFileName){
 				if($bVerbose)$oProgressBar->update($iKey+1);
 				if($sFileName != '.' && $sFileName != '..')rcopy($sZendSkeletonApplicationPath.DIRECTORY_SEPARATOR.$sFileName,$sTempDirPath.DIRECTORY_SEPARATOR.$sFileName);
@@ -262,7 +270,7 @@ try{
 		function findZendSkeletonApplication($sDirPath){
 			if(assertZendSkeletonApplicationIsValid($sDirPath))return $sDirPath;
 			foreach(scandir($sDirPath) as $sFilePath){
-				if($sFilePath != '.' && $sFilePath != '..' && is_dir($sFilePath = $sDirPath.DIRECTORY_SEPARATOR.$sFilePath) && ($sFilePath = findZendSkeletonApplication($sFilePath)))return $sFilePath;
+				if($sFilePath != '.' && $sFilePath != '..' && is_dir($sFilePath = $sDirPath.DIRECTORY_SEPARATOR.$sFilePath) && ($sFilePath = findZendSkeletonApplication($sFilePath)))return realpath($sFilePath);
 			}
 			return false;
 		}
@@ -273,7 +281,7 @@ try{
 		//Copy ZendSkeletonApplication files into the deploy directory
 		$aFiles = scandir($sTempZendSkeletonApplication);
 		if($bVerbose){
-			$oConsole->writeLine('    - Copy "ZendSkeletonApplication" into deploy directory "'.$sDeployDirPath.'"',\Zend\Console\ColorInterface::WHITE);
+			$oConsole->writeLine('    - Copy "ZendSkeletonApplication" into deploy directory "'.$sDeployDirPath.'"',\Zend\Console\ColorInterface::GRAY);
 			$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(), 0, count($aFiles));
 		}
 		foreach($aFiles as $iKey => $sFileName){
@@ -282,9 +290,8 @@ try{
 		}
 		if($bVerbose)$oProgressBar->finish();
 
-		//Remove temp directory
 		emptyDir($sTempDirPath);
-		if(!rmdir($sTempDirPath))new \RuntimeException('Unable to remove directory "'.$sTempDirPath.'"');
+		if(!rmdir($sTempDirPath))throw new \RuntimeException('Unable to remove directory "'.$sTempDirPath.'"');
 	}
 	elseif($bVerbose)$oConsole->writeLine(PHP_EOL.'  * "ZendSkeletonApplication" is already loaded',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
 
@@ -346,23 +353,23 @@ try{
 	if(!file_put_contents($sApplicationConfigPath,'<?php'.PHP_EOL.'return '.var_export($aApplicationConfig,true).';'))throw new \RuntimeException('An error occurred while writing application config values into file "'.$sApplicationConfigPath.'"');
 
 	//Manage composer install / update
-	//Load composer
-	if(!file_exists($sDeployComposerPharPath = $sDeployDirPath.DIRECTORY_SEPARATOR.'composer.phar')){
-		$sComposerPath = $oGetopt->getOption('c')?:$sComposerPath;
-		if($bVerbose)$oConsole->writeLine('    - Load composer.phar from "'.$sComposerPath.'"',\Zend\Console\ColorInterface::WHITE);
-		if(!copy($sComposerPath,$sDeployComposerPharPath))throw new \RuntimeException(sprintf(
-			'"%s" can\'t by moved in "%s"',
-			$sComposerPath,$sDeployComposerPharPath
-		));
-	}
-	else{
-		if($bVerbose)$oConsole->writeLine('    - composer self-update:',\Zend\Console\ColorInterface::WHITE);
-		exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' self-update',$aOutputs, $iReturn);
-		if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-		if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
-	}
+	if(is_readable($sModuleComposerPath = $sModulePath.DIRECTORY_SEPARATOR.'composer.json')){
+		//Load composer
+		if(!file_exists($sDeployComposerPharPath = $sDeployDirPath.DIRECTORY_SEPARATOR.'composer.phar')){
+			$sComposerPath = $oGetopt->getOption('c')?:$sComposerPath;
+			if($bVerbose)$oConsole->writeLine('    - Load composer.phar from "'.$sComposerPath.'"',\Zend\Console\ColorInterface::WHITE);
+			if(!copy($sComposerPath,$sDeployComposerPharPath))throw new \RuntimeException(sprintf(
+					'"%s" can\'t by moved in "%s"',
+					$sComposerPath,$sDeployComposerPharPath
+			));
+		}
+		else{
+			if($bVerbose)$oConsole->writeLine('    - composer self-update:',\Zend\Console\ColorInterface::WHITE);
+			exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' self-update',$aOutputs, $iReturn);
+			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
+			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+		}
 
-	if($bModuleUseComposer = file_exists($sModuleComposerPath  = $sModulePath.DIRECTORY_SEPARATOR.'composer.json')){
 		//Retrieve application composer.json config
 		if(($sModuleComposer = file_get_contents($sModuleComposerPath)) === false)throw new \RuntimeException('An error occurred while getting contents from file "'.$sModuleComposerPath.'"');
 		if(is_null($aModuleComposer = json_decode($sModuleComposer,true)))throw new \RuntimeException('An error occurred while decoding json contents from file "'.$sModuleComposerPath.'"');
@@ -398,27 +405,27 @@ try{
 				))throw new \RuntimeException('An error occurred while putting contents into file "'.$sApplicationComposerPath.'"');
 			}
 		}
-	}
 
-	$sCurrentWorkingDir = getcwd();
+		//Change current working directory
+		$sCurrentWorkingDir = getcwd();
+		chdir($sDeployDirPath);
 
-	//Update
-	if(file_exists($sDeployDirPath.DIRECTORY_SEPARATOR.'composer.lock')){
-		if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer update',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
-		chdir($sDeployDirPath);
-		exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' update',$aOutputs, $iReturn);
-		if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-		if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
-		chdir($sCurrentWorkingDir);
-	}
-	//Install
-	else{
-		if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer install',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
-		chdir($sDeployDirPath);
-		exec($sComposerSelfUpdateCommand ='php '. $sDeployComposerPharPath.' install',$aOutputs, $iReturn);
-		if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-		if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
-		chdir($sCurrentWorkingDir);
+		//Update
+		if(file_exists($sDeployDirPath.DIRECTORY_SEPARATOR.'composer.lock')){
+			if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer update',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
+			exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' update',$aOutputs, $iReturn);
+			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
+			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+			chdir($sCurrentWorkingDir);
+		}
+		//Install
+		else{
+			if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer install',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
+			exec($sComposerSelfUpdateCommand ='php '. $sDeployComposerPharPath.' install',$aOutputs, $iReturn);
+			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
+			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+			chdir($sCurrentWorkingDir);
+		}
 	}
 
 	if($bVerbose)$oConsole->writeLine(PHP_EOL.'### Module "'.$sCurrentModuleName.'" has been deployed into into "'.$sDeployDirPath.'" with success ###'.PHP_EOL,\Zend\Console\ColorInterface::GREEN);
