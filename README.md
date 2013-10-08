@@ -76,7 +76,7 @@ php ./vendor/bin/deploy_module.php [args]
     --zapp|-z [ <string> ]   	(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
     --composer|-c [ <string> ]  (optionnal) Composer.phar file path, allows locale or remote directory
     --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
-    --verbose|-v 				Whether or not to display trace string when an error occured 
+    --verbose|-v 				Whether or not to display execution trace
     
 ## Exemple
  

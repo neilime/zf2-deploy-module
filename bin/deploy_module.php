@@ -11,9 +11,8 @@
  * --zapp|-z [ <string> ]   		(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
  * --composer|-c [ <string> ]   (optionnal) Composer.phar file path, allows locale or remote directory
  * --overwrite|-w 				Whether or not to overwrite existing deployed ZendSkeletonApplication
- * --verbose|-v 				Whether or not to display trace string when an error occured
+ * --verbose|-v 				Whether or not to display execution trace
  */
-
 
 //Config
 $sZendSkeletonApplicationPath = 'https://github.com/zendframework/ZendSkeletonApplication/archive/master.zip';
@@ -60,7 +59,7 @@ try{
 		'zapp|z-s' 		=> '(optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries',
 		'composer|c-s' 	=> '(optionnal) Composer.phar file path, allows locale or remote directory',
 		'overwrite|w' 	=> 'Whether or not to overwrite existing deployed ZendSkeletonApplication',
-		'verbose|v' 	=> 'Whether or not to display process infos',
+		'verbose|v' 	=> 'Whether or not to display execution trace',
 	));
 	$oGetopt->parse();
 	$bVerbose = !!$oGetopt->getOption('verbose');
@@ -215,14 +214,17 @@ try{
 			$aFiles = scandir($sZendSkeletonApplicationPath = realpath($sZendSkeletonApplicationPath));
 			if($bVerbose){
 				$oConsole->writeLine('    - Copy ZendSkeletonApplication from "'.$sZendSkeletonApplicationPath.'"',\Zend\Console\ColorInterface::GRAY);
-				$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(), 0, count($aFiles));
+				$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(array('width' => $oConsole->getWidth())), 0, count($aFiles));
 			}
 
 			foreach($aFiles as $iKey => $sFileName){
 				if($bVerbose)$oProgressBar->update($iKey+1);
 				if($sFileName != '.' && $sFileName != '..')rcopy($sZendSkeletonApplicationPath.DIRECTORY_SEPARATOR.$sFileName,$sTempDirPath.DIRECTORY_SEPARATOR.$sFileName);
 			}
-			if($bVerbose)$oProgressBar->finish();
+			if($bVerbose){
+				$oProgressBar->finish();
+				unset($oProgressBar);
+			}
 		}
 
 		//Remote or locale file
@@ -282,7 +284,7 @@ try{
 		$aFiles = scandir($sTempZendSkeletonApplication);
 		if($bVerbose){
 			$oConsole->writeLine('    - Copy "ZendSkeletonApplication" into deploy directory "'.$sDeployDirPath.'"',\Zend\Console\ColorInterface::GRAY);
-			$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(), 0, count($aFiles));
+			$oProgressBar = new Zend\ProgressBar\ProgressBar(new \Zend\ProgressBar\Adapter\Console(array('width' => $oConsole->getWidth())), 0, count($aFiles));
 		}
 		foreach($aFiles as $iKey => $sFileName){
 			if($bVerbose)$oProgressBar->update($iKey+1);
@@ -354,20 +356,104 @@ try{
 
 	//Manage composer install / update
 	if(is_readable($sModuleComposerPath = $sModulePath.DIRECTORY_SEPARATOR.'composer.json')){
+
+		/**
+		 * Run a shell command
+		 * @param string $sCommandLine
+		 * @param \Zend\Console\Adapter\AdapterInterface $oConsole
+		 * @throws \RuntimeException
+		 * @return int : the exec return code
+		 */
+		function exec_shell($sCommandLine,\Zend\Console\Adapter\AdapterInterface $oConsole = null){
+			if(defined('PHP_WINDOWS_VERSION_BUILD'))$sCommandLine = 'cmd /V:ON /E:ON /C "'.$sCommandLine.'"';
+
+			$iSTDIN = 0;
+			$iSTDOUT = 1;
+			$iSTDERR = 2;
+
+			$aBuffers = array();
+			if(!is_resource($oProcess = proc_open(
+				defined('PHP_WINDOWS_VERSION_BUILD')?'cmd /V:ON /E:ON /C "'.$sCommandLine.'"':$sCommandLine,
+				array(
+					$iSTDIN => array('pipe', 'r'),
+					$iSTDOUT => array('pipe', 'w'),
+					$iSTDERR => array('pipe', 'w')
+				),
+				$aPipes,
+		 		defined('ZEND_THREAD_SAFE') || defined('PHP_WINDOWS_VERSION_BUILD')?getcwd():null,
+				null,
+				array('bypass_shell' => true)
+			)))throw new \RuntimeException('Unable to launch process "'.$sCommandLine.'"');
+
+			//Setup non-blocking behaviour for stdout and stderr
+			stream_set_blocking($aPipes[$iSTDOUT], 0);
+			stream_set_blocking($aPipes[$iSTDERR], 0);
+
+			$iDelay = 0;
+			$iExecCode = null;
+			$aOpenStreams = array($iSTDOUT, $iSTDERR);
+			while(!empty($aOpenStreams)){
+				//Try to find the exit code of the command before buggy proc_close()
+				if(is_null($iExecCode)){
+					$aStatusInfos = proc_get_status($oProcess);
+					if(!$aStatusInfos['running'])$iExecCode = $aStatusInfos['exitcode'];
+				}
+
+				//Go thru all open pipes and check for data
+				foreach($aOpenStreams as $iKey => $iPipe){
+					// Try to get some data
+					if(strlen($sOutput = fread($aPipes[$iPipe], 4096))){
+						if($oConsole)$oConsole->write($sOutput);
+
+						//Since we've got some data we don't need to sleep
+						$iDelay = 0;
+					}
+					//Check if we have consumed all the data in the current pipe
+					elseif(feof($aPipes[$iPipe])){
+						unset($aOpenStreams[$iKey]);
+						continue 2;
+					}
+				}
+
+				//Check if we have to sleep for a bit to be nice on the CPU
+				if($iDelay){
+					usleep($iDelay * 1000);
+					$iDelay = ceil(min(200, $iDelay*1.5));
+				}
+				else $iDelay = 1;
+			}
+
+			//Make sure all pipes are closed
+			foreach($aPipes as $iPipe => $oStreamHandle){
+				if(is_resource($oStreamHandle))fclose($oStreamHandle);
+			}
+
+			// Make sure the process is terminated
+			$aStatusInfos = proc_get_status($oProcess);
+			if($aStatusInfos['running'])proc_terminate($oProcess);
+
+			// Find out the exit code
+			if(is_null($iExecCode))$iExecCode = proc_close($oProcess);
+			else proc_close($oProcess);
+			return $iExecCode;
+		}
+
+
 		//Load composer
 		if(!file_exists($sDeployComposerPharPath = $sDeployDirPath.DIRECTORY_SEPARATOR.'composer.phar')){
 			$sComposerPath = $oGetopt->getOption('c')?:$sComposerPath;
 			if($bVerbose)$oConsole->writeLine('    - Load composer.phar from "'.$sComposerPath.'"',\Zend\Console\ColorInterface::WHITE);
 			if(!copy($sComposerPath,$sDeployComposerPharPath))throw new \RuntimeException(sprintf(
-					'"%s" can\'t by moved in "%s"',
-					$sComposerPath,$sDeployComposerPharPath
+				'"%s" can\'t by moved in "%s"',
+				$sComposerPath,$sDeployComposerPharPath
 			));
 		}
 		else{
 			if($bVerbose)$oConsole->writeLine('    - composer self-update:',\Zend\Console\ColorInterface::WHITE);
-			exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' self-update',$aOutputs, $iReturn);
-			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+			if(($iReturn = exec_shell(
+				$sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' self-update',
+				$bVerbose?$oConsole:null
+			)) !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
 		}
 
 		//Retrieve application composer.json config
@@ -413,17 +499,19 @@ try{
 		//Update
 		if(file_exists($sDeployDirPath.DIRECTORY_SEPARATOR.'composer.lock')){
 			if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer update',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
-			exec($sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' update',$aOutputs, $iReturn);
-			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+			if(($iReturn = exec_shell(
+				$sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' update',
+				$bVerbose?$oConsole:null
+			)) !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
 			chdir($sCurrentWorkingDir);
 		}
 		//Install
 		else{
 			if($bVerbose)$oConsole->writeLine(PHP_EOL.'  * Composer install',\Zend\Console\ColorInterface::LIGHT_MAGENTA);
-			exec($sComposerSelfUpdateCommand ='php '. $sDeployComposerPharPath.' install',$aOutputs, $iReturn);
-			if($bVerbose)$oConsole->writeLine('      '.join(PHP_EOL.'      ',$aOutputs).PHP_EOL,\Zend\Console\ColorInterface::WHITE);
-			if($iReturn !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
+			if(($iReturn = exec_shell(
+				$sComposerSelfUpdateCommand = 'php '.$sDeployComposerPharPath.' install',
+				$bVerbose?$oConsole:null
+			)) !== 0)throw new \RuntimeException('An error occurred while running "'.$sComposerSelfUpdateCommand.'"');
 			chdir($sCurrentWorkingDir);
 		}
 	}

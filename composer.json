@@ -20,6 +20,10 @@
         "php": ">=5.3.3",
         "zendframework/zendframework": "2.*@stable"
     },
+    "require-dev": {
+    	"symfony/process": "~2.1@dev",
+    	"phpunit/phpunit": "~3.7.10"
+    },
     "bin": [
         "bin/deploy_module.php"
     ],
