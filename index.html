@@ -3,38 +3,55 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <meta name="viewport" content="width=640" />
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
 
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
     <title>Zf2-deploy-module by neilime</title>
   </head>
 
   <body>
-    <header>
-      <div class="inner">
-        <h1>Zf2-deploy-module</h1>
-        <h2>ZF2 Deploy Module provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views</h2>
-        <a href="https://github.com/neilime/zf2-deploy-module" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+    <a id="forkme_banner" href="https://github.com/neilime/zf2-deploy-module">View on GitHub</a>
+    <div class="shell">
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Zf2-deploy-module</h1>
+            <h2>ZF2 Deploy Module provides tools for deploying ZF2 modules into a ZendSkeletonApplication to display / tests module's views</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/neilime/zf2-deploy-module/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/neilime/zf2-deploy-module/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1>
 <a name="zf2-deploy-module-v10" class="anchor" href="#zf2-deploy-module-v10"><span class="octicon octicon-link"></span></a>ZF2 Deploy Module, v1.0</h1>
 
 <p><a href="https://travis-ci.org/neilime/zf2-deploy-module"><img src="https://travis-ci.org/neilime/zf2-deploy-module.png?branch=master" alt="Build Status"></a>
 <a href="https://packagist.org/packages/neilime/zf2-deploy-module"><img src="https://poser.pugx.org/neilime/zf2-deploy-module/v/stable.png" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/neilime/zf2-deploy-module"><img src="https://poser.pugx.org/neilime/zf2-deploy-module/downloads.png" alt="Total Downloads"></a>
-<img src="https://raw.github.com/zf2-boiler-app/app-test/master/ressources/100%25-code-coverage.png" alt="Code coverage" title="100% code coverage"></p>
+<a href="https://packagist.org/packages/neilime/zf2-deploy-module"><img src="https://poser.pugx.org/neilime/zf2-deploy-module/downloads.png" alt="Total Downloads"></a></p>
 
 <p>NOTE : If you want to contribute don't hesitate, I'll review any PR.</p>
 
@@ -76,14 +93,14 @@ It is useful for ZF2 modules developers, in order to render modules views (for h
 <p>Add this project in your composer.json:</p>
 
 <div class="highlight highlight-json"><pre><span class="s2">"require_dev"</span><span class="err">:</span> <span class="p">{</span>
-    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"dev-master"</span>
+    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"1.*"</span>
 <span class="p">}</span>
 </pre></div>
 
 <p>Or</p>
 
 <div class="highlight highlight-json"><pre><span class="s2">"require"</span><span class="err">:</span> <span class="p">{</span>
-    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"dev-master"</span>
+    <span class="nt">"neilime/zf2-deploy-module"</span><span class="p">:</span> <span class="s2">"1.*"</span>
 <span class="p">}</span>
 </pre></div>
 </li>
@@ -102,10 +119,8 @@ It is useful for ZF2 modules developers, in order to render modules views (for h
 <h3>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
 
-<pre><code>```bash
-php ./vendor/bin/deploy_module.php [args]
-```
-</code></pre>
+<div class="highlight highlight-bash"><pre>php ./vendor/bin/deploy_module.php <span class="o">[</span>args<span class="o">]</span>
+</pre></div>
 
 <h3>
 <a name="arguments" class="anchor" href="#arguments"><span class="octicon octicon-link"></span></a>Arguments</h3>
@@ -114,10 +129,10 @@ php ./vendor/bin/deploy_module.php [args]
 --module|-m [ &lt;string&gt; ]    Module path to deploy; if none provided, assumes current directory
 --dir|-d [ &lt;string&gt; ]       Directory path where to deploy the module (ex: apache/www/my-module), the directory could be created if needed
 --modules|-a [ &lt;string&gt; ]   (optionnal) Additionnal module namespaces (comma separated) to be used in the application
---app|-z [ &lt;string&gt; ]       (optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
+--zapp|-z [ &lt;string&gt; ]      (optionnal) ZendSkeletonApplication file path, allows locale or remote directory, allows archive (Phar, Rar, Zip) depending on PHP installed libraries
 --composer|-c [ &lt;string&gt; ]  (optionnal) Composer.phar file path, allows locale or remote directory
 --overwrite|-w              Whether or not to overwrite existing deployed ZendSkeletonApplication
---verbose|-v                Whether or not to display trace string when an error occured 
+--verbose|-v                Whether or not to display execution trace
 </code></pre>
 
 <h2>
@@ -126,11 +141,12 @@ php ./vendor/bin/deploy_module.php [args]
 <h3>
 <a name="deploy-a-module-to-run-it-with-easyphp-windows" class="anchor" href="#deploy-a-module-to-run-it-with-easyphp-windows"><span class="octicon octicon-link"></span></a>Deploy a module to run it with EasyPhp (windows)</h3>
 
-<p>This exemple expects :<br>
-    * EasyPhp &amp; PHP is installed on windows
-    * A virtual host named "<a href="http://www.test-module.com">www.test-module.com</a>" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"</p>
+<p>This exemple expects :  </p>
 
-<ol>
+<ul>
+<li>EasyPhp &amp; PHP is installed on windows</li>
+<li>A virtual host named "<a href="http://www.test-module.com">www.test-module.com</a>" redirect to DocumentRoot "C:\Program Files\EasyPHP-DevServer\data\localweb\TestModule\public"</li>
+</ul><ol>
 <li><p>Install <strong>ZF2 Deploy Module</strong> into the your module project as explain above</p></li>
 <li>
 <p>Deploy module into EasyPhp "\TestModule"</p>
@@ -149,31 +165,47 @@ Go to <a href="http://www.test-module.com">http://www.test-module.com</a></p></l
 <p>Edit your .travis.yml</p>
 
 <div class="highlight highlight-yml"><pre><span class="l-Scalar-Plain">before_install</span><span class="p-Indicator">:</span>
-<span class="p-Indicator">-</span> <span class="s">"export</span><span class="nv"> </span><span class="s">DISPLAY=:99.0"</span>
+<span class="c1"># Update composer</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">composer self-update</span>
+<span class="c1"># Install project</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">composer install --dev -o</span>
+<span class="c1">#deploy module</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">mkdir ../deploy</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">php ./vendor/bin/deploy_module.php -d ../deploy -v</span>
+<span class="c1"># Install php packages</span>
+<span class="p-Indicator">-</span> <span class="s">"sudo</span><span class="nv"> </span><span class="s">apt-get</span><span class="nv"> </span><span class="s">update</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">/dev/null"</span>
+<span class="p-Indicator">-</span> <span class="s">"sudo</span><span class="nv"> </span><span class="s">apt-get</span><span class="nv"> </span><span class="s">install</span><span class="nv"> </span><span class="s">-y</span><span class="nv"> </span><span class="s">--force-yes</span><span class="nv"> </span><span class="s">apache2</span><span class="nv"> </span><span class="s">libapache2-mod-php5</span><span class="nv"> </span><span class="s">php5-curl</span><span class="nv"> </span><span class="s">php5-mysql</span><span class="nv"> </span><span class="s">php5-intl"</span>
+<span class="c1"># Create VirtualHost</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">sudo sed -i -e "s,/var/www,$(pwd)/../deploy/public,g" /etc/apache2/sites-available/default</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">sudo sed -i -e "/DocumentRoot/i\ServerName test-selenium.dev" /etc/apache2/sites-available/default</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">echo "127.0.0.1 test-selenium.dev" | sudo tee -a /etc/hosts</span>
+<span class="p-Indicator">-</span> <span class="s">"sudo</span><span class="nv"> </span><span class="s">/etc/init.d/apache2</span><span class="nv"> </span><span class="s">restart"</span>
+<span class="c1">#Run selenium</span>
 <span class="p-Indicator">-</span> <span class="s">"sh</span><span class="nv"> </span><span class="s">-e</span><span class="nv"> </span><span class="s">/etc/init.d/xvfb</span><span class="nv"> </span><span class="s">start"</span>
+<span class="p-Indicator">-</span> <span class="s">"export</span><span class="nv"> </span><span class="s">DISPLAY=:99.0"</span>
+<span class="p-Indicator">-</span> <span class="s">"wget</span><span class="nv"> </span><span class="s">http://selenium.googlecode.com/files/selenium-server-standalone-2.25.0.jar"</span>
+<span class="p-Indicator">-</span> <span class="s">"java</span><span class="nv"> </span><span class="s">-jar</span><span class="nv"> </span><span class="s">selenium-server-standalone-2.25.0.jar</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">/dev/null</span><span class="nv"> </span><span class="s">2&gt;&amp;1</span><span class="nv"> </span><span class="s">&amp;"</span>
+<span class="p-Indicator">-</span> <span class="s">"sleep</span><span class="nv"> </span><span class="s">30"</span>
 </pre></div>
 </li>
 <li><p>Run the build</p></li>
 </ol>
-        </section>
+      </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/neilime/zf2-deploy-module/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/neilime/zf2-deploy-module/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/neilime">neilime</a> can be found on <a href="https://github.com/neilime/zf2-deploy-module">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
 
-          <p class="repo-owner"><a href="https://github.com/neilime/zf2-deploy-module"></a> is maintained by <a href="https://github.com/neilime">neilime</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
     </div>
 
-  
+    
   </body>
 </html>
