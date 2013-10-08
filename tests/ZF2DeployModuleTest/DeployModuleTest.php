@@ -8,9 +8,9 @@ class DeployModuleTest extends \PHPUnit_Framework_TestCase{
 
 	public function setUp(){
 		//Empty deploy dir
-		foreach(new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator(__DIR__.'/../_file/deploy', \RecursiveDirectoryIterator::SKIP_DOTS),
-				\RecursiveIteratorIterator::CHILD_FIRST
+		if(is_dir(__DIR__.'/../_file/deploy'))foreach(new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator(__DIR__.'/../_file/deploy', \RecursiveDirectoryIterator::SKIP_DOTS),
+			\RecursiveIteratorIterator::CHILD_FIRST
 		) as $oFileInfo){
 			if($oFileInfo->isDir()){
 				if(!rmdir($oFileInfo->getPathname())){
