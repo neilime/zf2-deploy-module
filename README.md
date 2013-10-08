@@ -39,7 +39,7 @@ Requirements
 
     ```json
     "require_dev": {
-        "neilime/zf2-deploy-module": "dev-master"
+        "neilime/zf2-deploy-module": "1.*"
     }
     ```
     
@@ -47,7 +47,7 @@ Requirements
     
     ```json
     "require": {
-        "neilime/zf2-deploy-module": "dev-master"
+        "neilime/zf2-deploy-module": "1.*"
     }
     ```
 
