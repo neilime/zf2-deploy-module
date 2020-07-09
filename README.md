@@ -1,5 +1,7 @@
-ZF2 Deploy Module, v1.0
+ZF2 Deploy Module
 =======
+
+__⚠️ This module is for Zend Framework 2, it is deprecated ⚠️__ 
 
 [![Build Status](https://travis-ci.org/neilime/zf2-deploy-module.png?branch=master)](https://travis-ci.org/neilime/zf2-deploy-module)
 [![Latest Stable Version](https://poser.pugx.org/neilime/zf2-deploy-module/v/stable.png)](https://packagist.org/packages/neilime/zf2-deploy-module)
